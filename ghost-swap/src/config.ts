@@ -16,11 +16,11 @@ export const BUY_ASSET = 'usdc'
 
 // Deposit amounts per wallet — keep small, wallets have limited funds
 export const WALLET_DEPOSITS: Record<string, { token: Address; amount: bigint }> = {
-  A: { token: ETH_ADDRESS, amount: BigInt('500000000000000') },    // 0.0005 ETH
-  B: { token: ETH_ADDRESS, amount: BigInt('500000000000000') },    // 0.0005 ETH
-  C: { token: ETH_ADDRESS, amount: BigInt('500000000000000') },    // 0.0005 ETH
-  D: { token: USDC_ADDRESS, amount: BigInt('50000') },             // 0.05 USDC
-  F: { token: USDC_ADDRESS, amount: BigInt('25000') },             // 0.025 USDC
+  A: { token: ETH_ADDRESS, amount: BigInt('100000000000000') },    // 0.0001 ETH
+  B: { token: ETH_ADDRESS, amount: BigInt('100000000000000') },    // 0.0001 ETH
+  C: { token: ETH_ADDRESS, amount: BigInt('100000000000000') },    // 0.0001 ETH
+  D: { token: USDC_ADDRESS, amount: BigInt('15000') },             // 0.015 USDC
+  F: { token: USDC_ADDRESS, amount: BigInt('10000') },             // 0.01 USDC
 }
 
 const PARTICIPANT_NAMES = ['A', 'B', 'C', 'D', 'F'] as const

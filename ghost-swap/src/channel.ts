@@ -2,6 +2,8 @@ import {
   createWalletClient,
   createPublicClient,
   http,
+  keccak256,
+  encodeAbiParameters,
   type Address,
   type Hash,
   type Hex,
@@ -251,25 +253,9 @@ async function setupWallet(
     const params = buildCreateChannelParams(channelRes)
     const publicClient = createPublicClient({ chain: baseSepolia, transport: http(RPC_URL) })
     const result = await nitroliteClient.depositAndCreateChannel(token, depositAmount, params)
-
-    // Wait for tx confirmation and extract actual channelId from Created event
-    const receipt = await publicClient.waitForTransactionReceipt({ hash: result.txHash })
-    // Created event has channelId as indexed topic[1] — find log with 3 topics (event sig + channelId + wallet)
-    const createdLog = receipt.logs.find((l) => l.topics.length === 3)
-    const actualChannelId = (createdLog?.topics[1] ?? result.channelId) as Hex
-    console.log(`    Channel created: ${actualChannelId.slice(0, 18)}...`)
-    if (actualChannelId !== result.channelId) {
-      console.log(`    (channelId mismatch: local=${result.channelId.slice(0, 18)}, actual=${actualChannelId.slice(0, 18)})`)
-    }
+    await publicClient.waitForTransactionReceipt({ hash: result.txHash })
+    console.log(`    Channel created (status=ACTIVE)`)
     const initialState = result.initialState
-
-    // Checkpoint to transition channel INITIAL→ACTIVE (required before resize)
-    console.log(`    Checkpointing...`)
-    const checkpointHash = await nitroliteClient.checkpointChannel({
-      channelId: actualChannelId,
-      candidateState: initialState,
-    })
-    await publicClient.waitForTransactionReceipt({ hash: checkpointHash })
 
     // Resize channel to move deposit from account into channel allocation
     console.log(`    Resizing channel to lock deposit...`)
@@ -315,9 +301,25 @@ async function setupWallet(
       proofStates: [initialState],
     }
 
-    const resizeResult = await nitroliteClient.resizeChannel(resizeParams)
-    await publicClient.waitForTransactionReceipt({ hash: resizeResult.txHash })
-    console.log(`    Resized: ${resizeResult.txHash}`)
+    console.log(`    resize state: v=${resizeFinalState.version}, intent=${resizeFinalState.intent}`)
+    console.log(`    resize allocs: ${JSON.stringify(resizeFinalState.allocations.map(a => ({ d: a.destination.slice(0, 10), amt: a.amount.toString() })))}`)
+    console.log(`    proof state: v=${initialState.version}, intent=${initialState.intent}, sigs=${initialState.sigs?.length}`)
+    // Check account balance before resize
+    const acctBal = await nitroliteClient.getAccountBalance(token)
+    const chanBal = await nitroliteClient.getChannelBalance(result.channelId, token)
+    console.log(`    account balance: ${acctBal}, channel balance: ${chanBal}`)
+
+    try {
+      const resizeResult = await nitroliteClient.resizeChannel(resizeParams)
+      await publicClient.waitForTransactionReceipt({ hash: resizeResult.txHash })
+      console.log(`    Resized: ${resizeResult.txHash}`)
+    } catch (e: any) {
+      // Walk the cause chain to find the actual revert data
+      let inner = e
+      while (inner.cause) inner = inner.cause
+      console.log(`    Revert: ${inner.message?.slice(0, 600)}`)
+      throw e
+    }
   } finally {
     client.close()
   }

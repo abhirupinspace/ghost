@@ -335,10 +335,10 @@ async function closeWalletChannels(
         await publicClient.waitForTransactionReceipt({ hash: createResult.txHash })
         const withdrawalInitialState = createResult.initialState
 
-        // Checkpoint to transition INITIAL→ACTIVE
+        // Checkpoint to transition INITIAL→ACTIVE (use ClearNode's channelId)
         console.log(`    Checkpointing...`)
         const cpHash = await nitroliteClient.checkpointChannel({
-          channelId: createResult.channelId,
+          channelId: channelRes.channel_id,
           candidateState: withdrawalInitialState,
         })
         await publicClient.waitForTransactionReceipt({ hash: cpHash })

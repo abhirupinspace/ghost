@@ -35,9 +35,9 @@ export function fetchOrderbook(): Promise<Orderbook> {
 }
 
 export interface MarketStats {
-  lendSupply: { count: number; total: number };
-  borrowDemand: { count: number; total: number };
-  activeLoans: { count: number; total: number };
+  lendSupply: { count: number; total: string };
+  borrowDemand: { count: number; total: string };
+  activeLoans: { count: number; total: string };
 }
 
 export function fetchMarketStats(): Promise<MarketStats> {
@@ -48,7 +48,7 @@ export function fetchMarketStats(): Promise<MarketStats> {
 
 export function submitLendIntent(body: {
   address: string;
-  amount: number;
+  amount: string;
   duration: number;
   minRate?: number;
   tranche?: string;
@@ -58,7 +58,7 @@ export function submitLendIntent(body: {
 
 export function submitBorrowIntent(body: {
   address: string;
-  amount: number;
+  amount: string;
   duration: number;
   maxRate?: number;
 }) {

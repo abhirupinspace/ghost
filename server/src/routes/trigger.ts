@@ -29,8 +29,8 @@ triggerRoutes.post("/trigger/settle", apiKeyAuth, async (c) => {
           match.juniorAmounts,
           match.principal,
           match.collateralAmount,
-          match.rate,
-          match.duration,
+          BigInt(Math.round(match.rate)),
+          BigInt(match.duration),
         ]);
         // Read loanId directly from contract state (reliable, no event decoding)
         const loanCount = await readContract<bigint>("loanCount", []);

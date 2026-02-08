@@ -70,11 +70,11 @@ export async function clearMarket(): Promise<LoanMatch[]> {
     const allRates = [
       ...seniorLenders.map((_, i) => {
         const lend = lendIntents.find((l) => l.address === seniorLenders[i]);
-        return BigInt(Number(lend?.minRate || 0));
+        return BigInt(Math.round(Number(lend?.minRate || 0)));
       }),
       ...juniorLenders.map((_, i) => {
         const lend = lendIntents.find((l) => l.address === juniorLenders[i]);
-        return BigInt(Number(lend?.minRate || 0));
+        return BigInt(Math.round(Number(lend?.minRate || 0)));
       }),
     ];
 

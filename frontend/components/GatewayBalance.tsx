@@ -2,14 +2,14 @@
 
 import { RefreshCw } from "lucide-react";
 import { useGateway } from "@/contexts/GatewayContext";
-import { useActiveAccount } from "thirdweb/react";
+import { useWallet } from "@/contexts/WalletContext";
 import { fmtUsd } from "@/lib/ghost-data";
 
 export function GatewayBalance() {
-  const activeAccount = useActiveAccount();
+  const { address } = useWallet();
   const { balances, totalBalance, loading, refresh } = useGateway();
 
-  if (!activeAccount) return null;
+  if (!address) return null;
 
   return (
     <div className="bg-[#050505] rounded-2xl border border-[#1a1a1a] overflow-hidden">

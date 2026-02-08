@@ -3,8 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Loader2 } from "lucide-react";
-import { useActiveAccount } from "thirdweb/react";
-import { sendTransaction } from "thirdweb";
+import { useWallet } from "@/contexts/WalletContext";
 import { DotPattern } from "@/components/ui/dot-pattern";
 import { CryptoIcon } from "@/components/CryptoIcon";
 import { CreditScoreGauge } from "@/components/CreditScoreGauge";
@@ -25,8 +24,8 @@ import {
 import {
   readRequiredCollateral,
   readOwed,
-  prepareDepositCollateral,
-  prepareRepay,
+  writeDepositCollateral,
+  writeRepay,
 } from "@/lib/contract";
 import {
   pageVariants,
@@ -50,8 +49,7 @@ function truncAddr(a: string): string {
 }
 
 export default function BorrowPage() {
-  const account = useActiveAccount();
-  const address = account?.address;
+  const { address, walletClient } = useWallet();
 
   const [amount, setAmount] = useState("");
   const [maxRate, setMaxRate] = useState("");
@@ -116,13 +114,12 @@ export default function BorrowPage() {
   };
 
   const handleSubmitBorrow = async () => {
-    if (!account || !address || parsedAmount <= 0) return;
+    if (!walletClient || !address || parsedAmount <= 0) return;
     setSubmitting(true);
     try {
       // 1. Deposit collateral on-chain
       const collateralWei = parseUsdc(requiredCollateral > 0 ? requiredCollateral : requiredCollateralUsd);
-      const tx = prepareDepositCollateral(collateralWei);
-      await sendTransaction({ account, transaction: tx });
+      await writeDepositCollateral(walletClient, collateralWei);
       // 2. Submit intent to server
       await submitBorrowIntent({
         address,
@@ -141,12 +138,11 @@ export default function BorrowPage() {
   };
 
   const handleRepay = async (loanId: number) => {
-    if (!account) return;
+    if (!walletClient) return;
     setRepaying(loanId);
     try {
       const owed = await readOwed(BigInt(loanId));
-      const tx = prepareRepay(BigInt(loanId), owed);
-      await sendTransaction({ account, transaction: tx });
+      await writeRepay(walletClient, BigInt(loanId), owed);
       await loadData();
     } catch (e) {
       console.error("Repay failed:", e);
@@ -293,11 +289,11 @@ export default function BorrowPage() {
               <motion.button
                 whileTap={buttonTap}
                 onClick={handleSubmitBorrow}
-                disabled={!account || submitting || parsedAmount <= 0}
+                disabled={!walletClient || submitting || parsedAmount <= 0}
                 className="w-full py-3 rounded-xl text-[14px] font-semibold cursor-pointer bg-white text-[#111] hover:brightness-110 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {submitting && <Loader2 size={14} className="animate-spin" />}
-                {!account ? "Connect Wallet" : submitting ? "Submitting..." : "Submit Borrow Bid"}
+                {!walletClient ? "Connect Wallet" : submitting ? "Submitting..." : "Submit Borrow Bid"}
               </motion.button>
             </div>
 

@@ -8,7 +8,7 @@ import {
   useCallback,
   type ReactNode,
 } from "react";
-import { useActiveAccount } from "thirdweb/react";
+import { useWallet } from "@/contexts/WalletContext";
 import { GATEWAY_CONFIG, gatewayChains, getDomainName } from "@/lib/gateway-contracts";
 
 export interface GatewayBalance {
@@ -36,9 +36,7 @@ export function useGateway() {
 }
 
 export function GatewayProvider({ children }: { children: ReactNode }) {
-  const activeAccount = useActiveAccount();
-  const walletAddress = activeAccount?.address ?? null;
-  const authenticated = !!activeAccount;
+  const { address: walletAddress } = useWallet();
 
   const [balances, setBalances] = useState<GatewayBalance[]>([]);
   const [loading, setLoading] = useState(false);
@@ -81,10 +79,10 @@ export function GatewayProvider({ children }: { children: ReactNode }) {
   }, [walletAddress]);
 
   useEffect(() => {
-    if (authenticated && walletAddress) {
+    if (walletAddress) {
       fetchBalances();
     }
-  }, [authenticated, walletAddress, fetchBalances]);
+  }, [walletAddress, fetchBalances]);
 
   const totalBalance = balances.reduce(
     (sum, b) => sum + parseFloat(b.balance || "0"),

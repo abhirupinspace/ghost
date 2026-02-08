@@ -1,20 +1,18 @@
 "use client";
 
-import { ThirdwebProvider } from "thirdweb/react";
+import { WalletProvider } from "@/contexts/WalletContext";
 import { PythPriceProvider } from "@/contexts/PythPriceContext";
 import { GatewayProvider } from "@/contexts/GatewayContext";
 import { IdentityProvider } from "@/contexts/IdentityContext";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ThirdwebProvider>
+    <WalletProvider>
       <IdentityProvider>
         <PythPriceProvider>
-          <GatewayProvider>
-            {children}
-          </GatewayProvider>
+          <GatewayProvider>{children}</GatewayProvider>
         </PythPriceProvider>
       </IdentityProvider>
-    </ThirdwebProvider>
+    </WalletProvider>
   );
 }

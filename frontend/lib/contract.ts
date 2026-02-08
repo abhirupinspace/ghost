@@ -1,116 +1,165 @@
-import { defineChain, getContract, prepareContractCall, readContract } from "thirdweb";
-import { thirdwebClient } from "./thirdweb-client";
+import { createPublicClient, http, type WalletClient } from "viem";
+import { arcTestnet } from "viem/chains";
 
 export const CONTRACT_ADDRESS =
-  process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "0x0000000000000000000000000000000000000000";
-
-export const arcChain = defineChain({
-  id: 5042002,
-  name: "Arc Testnet",
-  rpc: "https://rpc-testnet.arc.xyz",
-  nativeCurrency: { name: "USDC", symbol: "USDC", decimals: 6 },
-  blockExplorers: [{ name: "Arc Explorer", url: "https://testnet.arc.xyz" }],
-});
+  (process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ||
+    "0x0000000000000000000000000000000000000000") as `0x${string}`;
 
 export const GHOST_ABI = [
-  "function lenderBalances(address) view returns (uint256)",
-  "function borrowerCollateral(address) view returns (uint256)",
-  "function loanCount() view returns (uint256)",
-  "function getLenderBalance(address) view returns (uint256)",
-  "function getBorrowerCollateral(address) view returns (uint256)",
-  "function getLoan(uint256) view returns (address,uint256,uint256,uint256,uint256,uint256,bool,bool)",
-  "function getLoanLenders(uint256) view returns (address[],uint256[],address[],uint256[])",
-  "function getOwed(uint256) view returns (uint256)",
-  "function isOverdue(uint256) view returns (bool)",
-  "function getRequiredCollateral(address,uint256) view returns (uint256)",
-  "function getCreditScore(address) view returns (uint256)",
-  "function depositLend() payable",
-  "function withdrawLend(uint256)",
-  "function depositCollateral() payable",
-  "function withdrawCollateral(uint256)",
-  "function repay(uint256) payable",
-  "event LendDeposited(address indexed lender, uint256 amount)",
-  "event CollateralDeposited(address indexed borrower, uint256 amount)",
-  "event LoanCreated(uint256 indexed loanId, address indexed borrower, uint256 principal)",
-  "event LoanRepaid(uint256 indexed loanId, address indexed borrower, uint256 totalPaid)",
-  "event LoanDefaulted(uint256 indexed loanId, address indexed borrower)",
+  {
+    name: "getLenderBalance",
+    type: "function",
+    stateMutability: "view",
+    inputs: [{ name: "lender", type: "address" }],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    name: "getBorrowerCollateral",
+    type: "function",
+    stateMutability: "view",
+    inputs: [{ name: "borrower", type: "address" }],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    name: "getCreditScore",
+    type: "function",
+    stateMutability: "view",
+    inputs: [{ name: "user", type: "address" }],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    name: "getRequiredCollateral",
+    type: "function",
+    stateMutability: "view",
+    inputs: [
+      { name: "borrower", type: "address" },
+      { name: "amount", type: "uint256" },
+    ],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    name: "getOwed",
+    type: "function",
+    stateMutability: "view",
+    inputs: [{ name: "loanId", type: "uint256" }],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    name: "depositLend",
+    type: "function",
+    stateMutability: "payable",
+    inputs: [],
+    outputs: [],
+  },
+  {
+    name: "depositCollateral",
+    type: "function",
+    stateMutability: "payable",
+    inputs: [],
+    outputs: [],
+  },
+  {
+    name: "repay",
+    type: "function",
+    stateMutability: "payable",
+    inputs: [{ name: "loanId", type: "uint256" }],
+    outputs: [],
+  },
 ] as const;
 
-export function getGhostContract() {
-  return getContract({
-    client: thirdwebClient,
-    chain: arcChain,
-    address: CONTRACT_ADDRESS,
-  });
-}
+const publicClient = createPublicClient({
+  chain: arcTestnet,
+  transport: http(),
+});
 
 // ── Read helpers ──
 
 export function readLenderBalance(address: string) {
-  return readContract({
-    contract: getGhostContract(),
-    method: "function getLenderBalance(address) view returns (uint256)",
-    params: [address],
+  return publicClient.readContract({
+    address: CONTRACT_ADDRESS,
+    abi: GHOST_ABI,
+    functionName: "getLenderBalance",
+    args: [address as `0x${string}`],
   });
 }
 
 export function readBorrowerCollateral(address: string) {
-  return readContract({
-    contract: getGhostContract(),
-    method: "function getBorrowerCollateral(address) view returns (uint256)",
-    params: [address],
+  return publicClient.readContract({
+    address: CONTRACT_ADDRESS,
+    abi: GHOST_ABI,
+    functionName: "getBorrowerCollateral",
+    args: [address as `0x${string}`],
   });
 }
 
 export function readCreditScore(address: string) {
-  return readContract({
-    contract: getGhostContract(),
-    method: "function getCreditScore(address) view returns (uint256)",
-    params: [address],
+  return publicClient.readContract({
+    address: CONTRACT_ADDRESS,
+    abi: GHOST_ABI,
+    functionName: "getCreditScore",
+    args: [address as `0x${string}`],
   });
 }
 
 export function readRequiredCollateral(address: string, amount: bigint) {
-  return readContract({
-    contract: getGhostContract(),
-    method: "function getRequiredCollateral(address,uint256) view returns (uint256)",
-    params: [address, amount],
+  return publicClient.readContract({
+    address: CONTRACT_ADDRESS,
+    abi: GHOST_ABI,
+    functionName: "getRequiredCollateral",
+    args: [address as `0x${string}`, amount],
   });
 }
 
 export function readOwed(loanId: bigint) {
-  return readContract({
-    contract: getGhostContract(),
-    method: "function getOwed(uint256) view returns (uint256)",
-    params: [loanId],
+  return publicClient.readContract({
+    address: CONTRACT_ADDRESS,
+    abi: GHOST_ABI,
+    functionName: "getOwed",
+    args: [loanId],
   });
 }
 
-// ── Write helpers (return prepared transactions for sendTransaction) ──
+// ── Write helpers (use walletClient from WalletContext) ──
 
-export function prepareDepositLend(amountWei: bigint) {
-  return prepareContractCall({
-    contract: getGhostContract(),
-    method: "function depositLend() payable",
-    params: [],
+export async function writeDepositLend(
+  walletClient: WalletClient,
+  amountWei: bigint,
+) {
+  return walletClient.writeContract({
+    address: CONTRACT_ADDRESS,
+    abi: GHOST_ABI,
+    functionName: "depositLend",
+    args: [],
     value: amountWei,
+    chain: arcTestnet,
   });
 }
 
-export function prepareDepositCollateral(amountWei: bigint) {
-  return prepareContractCall({
-    contract: getGhostContract(),
-    method: "function depositCollateral() payable",
-    params: [],
+export async function writeDepositCollateral(
+  walletClient: WalletClient,
+  amountWei: bigint,
+) {
+  return walletClient.writeContract({
+    address: CONTRACT_ADDRESS,
+    abi: GHOST_ABI,
+    functionName: "depositCollateral",
+    args: [],
     value: amountWei,
+    chain: arcTestnet,
   });
 }
 
-export function prepareRepay(loanId: bigint, amountWei: bigint) {
-  return prepareContractCall({
-    contract: getGhostContract(),
-    method: "function repay(uint256) payable",
-    params: [loanId],
+export async function writeRepay(
+  walletClient: WalletClient,
+  loanId: bigint,
+  amountWei: bigint,
+) {
+  return walletClient.writeContract({
+    address: CONTRACT_ADDRESS,
+    abi: GHOST_ABI,
+    functionName: "repay",
+    args: [loanId],
     value: amountWei,
+    chain: arcTestnet,
   });
 }

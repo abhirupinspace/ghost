@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { CheckCircle, Clock, XCircle, Lock, Zap } from "lucide-react";
-import { useActiveAccount } from "thirdweb/react";
+import { useWallet } from "@/contexts/WalletContext";
 import { DotPattern } from "@/components/ui/dot-pattern";
 import { CryptoIcon } from "@/components/CryptoIcon";
 import { CreditScoreGauge } from "@/components/CreditScoreGauge";
@@ -46,8 +46,7 @@ function formatUsdc(wei: bigint | string): number {
 export default function PortfolioPage() {
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const { walletAddress, ensName } = useIdentity();
-  const account = useActiveAccount();
-  const address = account?.address;
+  const { address } = useWallet();
 
   // Live data
   const [creditScore, setCreditScore] = useState(500);

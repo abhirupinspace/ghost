@@ -1,0 +1,26 @@
+{
+  "name": "test-client",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "fund": "bun src/fund-wallets.ts",
+    "test": "bun test",
+    "test:deposit": "bun test src/tests/deposit.test.ts",
+    "test:intents": "bun test src/tests/intents.test.ts",
+    "test:settle": "bun test src/tests/settle.test.ts",
+    "test:repay": "bun test src/tests/repay.test.ts",
+    "test:liquidate": "bun test src/tests/liquidate.test.ts",
+    "test:user": "bun test src/tests/user.test.ts",
+    "test:market": "bun test src/tests/market.test.ts"
+  },
+  "dependencies": {
+    "ethers": "^6.13.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

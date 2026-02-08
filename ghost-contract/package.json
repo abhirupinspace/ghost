@@ -1,0 +1,25 @@
+{
+  "name": "ghost-contract",
+  "scripts": {
+    "test": "hardhat test",
+    "compile": "hardhat compile",
+    "deploy": "hardhat run scripts/deploy.js"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@nomicfoundation/hardhat-chai-matchers": "^2.0.0",
+    "@nomicfoundation/hardhat-ethers": "^3.0.0",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.0",
+    "@typechain/hardhat": "^9.0.0",
+    "@typechain/ethers-v6": "^0.5.0",
+    "typechain": "^8.0.0",
+    "ethers": "^6.0.0",
+    "chai": "^4.3.0",
+    "hardhat": "^2.19.1",
+    "hardhat-gas-reporter": "^1.0.0",
+    "solidity-coverage": "^0.8.0"
+  },
+  "dependencies": {
+    "thirdweb": "^5.118.1"
+  }
+}

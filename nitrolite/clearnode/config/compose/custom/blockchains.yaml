@@ -1,9 +1,0 @@
-default_contract_addresses:
-  custody: "0x019B65A265EB3363822f2752141b3dF16131b262"
-  adjudicator: "0x7c7ccbc98469190849BCC6c926307794fDfB11F2"
-
-blockchains:
-  - name: base_sepolia
-    id: 84532
-    contract_addresses:
-      balance_checker: "0x33e57a8900882B8D5A038eC3Aa844c19Acfc539A"

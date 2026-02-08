@@ -110,6 +110,8 @@ Full API reference with request/response schemas: [`docs/integration.md`](docs/i
 
 **Chain:** Arc Testnet (5042002) | **Solidity:** 0.8.24 | **Native token:** USDC (payable)
 
+**Deployed:** [`0xdD996e8419Ce81Be3D60bF8490D9C3a6C590eb92`](https://testnet.arcscan.app/address/0xdD996e8419Ce81Be3D60bF8490D9C3a6C590eb92) on Arc Testnet
+
 ### User Functions
 ```solidity
 function depositLend() external payable
